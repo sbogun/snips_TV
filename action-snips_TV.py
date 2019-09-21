@@ -57,14 +57,19 @@ PROGRAM_KEY_MAP['paradiso'] = [1,2,2]
 def subscribe_intent_callback(hermes, intent_message):
     intentname = intent_message.intent.intent_name
 
+    mqttc = mqtt.Client() 
+    mqttc.connect('localhost', 1883)
+
     if intentname == "sbogun:TV_on":
-        mqttc = mqtt.Client() 
-        mqttc.connect('localhost', 1883)
-        mqttc.publish(MQTT_TOPIC, payload = MQTT_MSG)
-        mqttc.disconnect()
+        mqttc.publish(MQTT_TOPIC, payload = MQTT_MSG['power_on_AMP'])
 
     elif intentname == "sbogun:TV_program":
         station_name = intent_message.slots.station_name.first()
+        if station_name in PROGRAM_KEY_MAP.keys():
+            for i in PROGRAM_KEY_MAP[station_name]:
+                mqttc.publish(MQTT_TOPIC, payload = MQTT_MSG[str(i)])
+
+    mqttc.disconnect()
 
 
 
